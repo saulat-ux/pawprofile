@@ -14,9 +14,9 @@ const initialState = {
 // create Breed
 export const createBreed = createAsyncThunk(
     "breed/createBreed",
-    async ({ name, imageURL, description },thunkAPI) => {
+    async ({ name, imageURL, description,userID},thunkAPI) => {
         try {
-                return await breedService.createBreed({ name, imageURL, description })
+                return await breedService.createBreed({ name, imageURL, description ,userID})
         } catch (error) {
             const message = (
                 error.response && error.response.data && error.response.data.message

@@ -15,7 +15,7 @@ console.log(API_URL)
 // this will send the breeddata to the backend as part of the req.body
 const  createBreed = async (breedData) => {
     const response = await axios.post(API_URL , breedData, {
-        withCredentials: false,
+        withCredentials: true,
     })
     return response.data
 }

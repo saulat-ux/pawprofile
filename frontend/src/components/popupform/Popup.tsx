@@ -1,28 +1,50 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import {useState} from 'react'
 import { useDispatch, useSelector } from 'react-redux';
-import { RESET_BREED,createBreed } from '../../redux/features/breed/breedSlice';
+import { RESET_BREED,createBreed, getBreeds } from '../../redux/features/breed/breedSlice';
 import { Link, useNavigate } from 'react-router-dom';
+import { RESET_AUTH, getUser } from '../../redux/features/auth/authSlice';
 
 
 const Popup = (props) => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const {isLoading , isSuccess ,breed} = useSelector((state) => state.breed)
+  const { user} = useSelector((state) => state.auth)
 
   const [name, setName] = useState('')
   const [imageURL, setImageURL] = useState('')
   const [description, setDescription] = useState('')
+  const [userID ,setUserID] = useState('');
 
+  useEffect(() => {
+    const fetchUserData = async () => {
+      await dispatch(getUser());
+    };
+    fetchUserData();
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (user && user._id) {
+      setUserID(user._id);
+    }
+  }, [user]);
   const handleSubmit =  async () => {
+
     // e.preventDefault();
-    console.log(name,imageURL,description)
-    await dispatch(createBreed({ name, imageURL, description }))
+    console.log(name,imageURL,description, userID)
+    await dispatch(createBreed({ name, imageURL, description ,userID}))
+    await dispatch(getBreeds())
+    
     navigate("/breedlist")
   }
 
   
-
+  const handleClose = () => {
+    if (props.onClose) {
+      props.onClose(); // Trigger the onClose function passed from BreedList
+    }
+  };
 
   return (props.trigger) ? (
   
@@ -43,8 +65,11 @@ const Popup = (props) => {
             <label htmlFor="lifeExpectancy" className="block text-black font-bold mb-2">Description</label>
             <input onChange={(e) =>setDescription(e.target.value) } type="string" id="lifeExpectancy" name="lifeExpectancy" className="border-2 rounded-md px-4 py-2 w-full" />
           </div>
-          <button type="submit" className="bg-black text-white py-2 px-4 rounded-md">Add</button>
-         
+       
+          <button type="submit" className="bg-black text-white py-2 px-4 mx-6 rounded-md">Add </button>
+          <button className='bg-black text-white py-2 mr px-4 rounded-md' onClick={handleClose}>Close</button>
+
+        
 
         </form>
       </div>

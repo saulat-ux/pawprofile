@@ -5,22 +5,12 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const breedRoutes = require('./routes/breedRoutes')
+const userRoutes = require('./routes/userRoutes')
 
 
 // const errorHandler = require("./middleware/errorMiddleware");
 const app = express()
-app.use((req, res, next) => {
-    // Handle preflight request
-    if (req.method === 'OPTIONS') {
-      res.setHeader('Access-Control-Allow-Origin', 'http://localhost:5173');
-      res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
-      res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-      res.setHeader('Access-Control-Allow-Credentials', 'true');
-      res.status(200).end();
-      return;
-    }
-    next();
-  });
+
 
 
 
@@ -29,20 +19,18 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({extended: false}));
 
-app.use(
-    cors({
-        origin: ["http://localhost:5173"],
-        credentials: true,
-        optionsSuccessStatus: 200
-    
-    })
-)
 
 
+// Enable CORS using middleware
+app.use(cors({
+    origin: "http://127.0.0.1:5173",
+    credentials: true,
+}));
 
 
 // router
 app.use("/api/v1/breeds", breedRoutes )
+app.use("/api/v1/user", userRoutes )
 
 
 

@@ -25,9 +25,12 @@ const Login = () => {
    await dispatch(login(userData))
 
 }
+
+
 useEffect(() => {
     if(isSuccess && isLoggedIn) {
         navigate("/")
+    
 
     }
     dispatch(RESET_AUTH())

@@ -27,6 +27,10 @@ const breedSchema = mongoose.Schema({
         type: String,
        
     },
+    userID: {
+        type: String,
+        required: [true, "Id is required"]
+    }
 
 
 },

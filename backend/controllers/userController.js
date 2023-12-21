@@ -3,8 +3,14 @@ const User = require("../models/userModel");
 const jwt = require("jsonwebtoken")
 const bcrypt = require("bcryptjs")
 
+// const generateToken = (id) => {
+//     return jwt.sign({id}, process.env.JWT_SECRET , {
+//         expiresIn: "1d"
+//     })
+// }
+
 const generateToken = (id) => {
-    return jwt.sign({id}, process.env.JWT_SECRET , {
+    return jwt.sign({id}, '123123' , {
         expiresIn: "1d"
     })
 }
@@ -12,10 +18,11 @@ const generateToken = (id) => {
 // register user
 const registerUser = asyncHandler(async(req, res) => {
     const {name ,email, password} = req.body;
+    console.log(req.body)
     // validate that request
     if(!name || !email || !password){
         res.status(400)
-        throw new Error("Please fill in all required fields")
+        throw new Error("Please fill the required fields")
     }
     if(password.length < 6){
         res.status(400);
@@ -42,8 +49,8 @@ const registerUser = asyncHandler(async(req, res) => {
             path:"/",
             httpOnly: true,
             expires: new Date(Date.now() + 1000 * 86400),
-            // secure: true,
-            // samesite: none,
+            secure: true,
+            sameSite: 'None',
         })
         // send user data
         res.status(201).json({
@@ -75,20 +82,21 @@ const registerUser = asyncHandler(async(req, res) => {
         // check if password is correct
         const passwordIsCorrect = await bcrypt.compare(password , user.password)
         // generate token
-        const tokken = generateToken(user._id);
+        const token = generateToken(user._id);
 
 
         if(user && passwordIsCorrect){
             const newUser = await User.findOne({email}).select("-password")
-            res.cookie("token" , tokken, {
+            res.cookie("token" , token, {
                 path:"/",
                 httpOnly: true,
                 expires: new Date(Date.now() + 1000 * 86400),
-                // secure: true,
-                // samesite: none,
+                secure: true,
+                sameSite: 'None',
             })
             // send data
-            res.status(201).json(newUser);
+            res.status(201).json({newUser, token});
+            console.log(req.cookies)
              
         } else{
             res.status(400);
@@ -103,11 +111,34 @@ const logoutUser = asyncHandler( async(req, res) => {
     res.cookie("token", "",{
         path:"/",
         httpOnly:true,
-        expires:new Date(0)
+        expires:new Date(0),
+        secure: true,
+        sameSite: 'None',
     })
     res.status(200).json({message: "Successfully logout"})
 })
 
+
+// get login status
+const getLoginStatus = asyncHandler (async(req, res) => {
+    console.log(req.cookies)
+    const token = req.cookies.token;
+    console.log(req.cookies)
+    if(!token){
+     return res.json(false)
+     // return here so the application stops
+     
+ }
+         // vairfy the token
+         // const verified = jwt.verify(token, process.env.JWT_SECRET)
+         const verified = jwt.verify(token, '123123')
+      
+         if(verified){
+             res.json(true)
+         }else{
+              res.json(false)
+         }
+ })
 // getuser
     const getUser = asyncHandler(async(req, res) => {
 
@@ -121,22 +152,7 @@ const logoutUser = asyncHandler( async(req, res) => {
        }
     });
 
-// get login status
-const getLoginStatus = asyncHandler (async(req, res) => {
-   const token = req.cookies.token;
-   if(!token){
-    return res.json(false)
-    // return here so the application stops
-    
-}
-// vairfy the token
-        const verified = jwt.verify(token, process.env.JWT_SECRET)
-        if(verified){
-            res.json(true)
-        }else{
-             res.json(false)
-        }
-})
+
 
 // update user 
     const updateUser = asyncHandler(async(req, res) => {

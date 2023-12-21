@@ -1,5 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import authService from './authService';
+import { toast } from 'react-toastify';
+
 
 
 
@@ -10,6 +12,7 @@ const initialState = {
     isSuccess:false,
     isLoading:false,
     message: "",
+    Id:"",
 };
 
 // REgister user
@@ -44,7 +47,7 @@ export const login = createAsyncThunk(
 )
 
 
-// Login user
+// Logout user
 export const logout = createAsyncThunk(
     "auth/logout",
     async (_,thunkAPI) => {
@@ -65,6 +68,21 @@ export const getUser = createAsyncThunk(
     async (_,thunkAPI) => {
         try {
                 return await authService.getUser()
+        } catch (error) {
+            const message = (
+                error.response && error.response.data && error.response.data.message
+            ) || error.message || error.toString();
+            return thunkAPI.rejectWithValue(message)
+        }
+    }
+)
+
+// getLoginStatus 
+export const getLoginStatus = createAsyncThunk(
+    "auth/getLoginStatus",
+    async (_,thunkAPI) => {
+        try {
+                return await authService.getLoginStatus()
         } catch (error) {
             const message = (
                 error.response && error.response.data && error.response.data.message
@@ -156,6 +174,7 @@ const authSlice = createSlice({
                                 state.isSuccess = true;
                                 state.isLoggedIn = true;
                                 state.user = action.payload;
+                                state.Id = action.payload._id;
                                 toast.success(action.payload);
                                 console.log(action.payload)
                             })
@@ -165,6 +184,28 @@ const authSlice = createSlice({
                                 state.message = action.payload;
                                 toast.error(action.payload);
                             })
+
+
+                                 // getLoginStatus
+                        .addCase(getLoginStatus.pending, (state) => {
+                        state.isLoading = true;
+            })
+                .addCase(getLoginStatus.fulfilled, (state, action) => {
+                    state.isLoading = false;
+                    state.isSuccess = true;
+                    state.isLoggedIn = action.payload;
+                    console.log(action.payload)
+                    if(action.payload.message ==='invalid signature'){
+                    state.isLoggedIn = false;
+
+                    }
+                })
+                .addCase(getLoginStatus.rejected, (state, action) => {
+                    state.isLoading = false;
+                    state.isError = true;
+                    state.message = action.payload;
+                  
+                })
             
 
     }

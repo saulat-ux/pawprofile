@@ -7,26 +7,45 @@ import Popup from '../../components/popupform/Popup';
 import EditForm from '../../components/popupform/editForm';
 import { useDispatch, useSelector } from 'react-redux';
 import { RESET_BREED, deleteBreed, getBreeds } from '../../redux/features/breed/breedSlice';
+import { RESET_AUTH, getUser } from '../../redux/features/auth/authSlice';
 
 const ListOfBreeds = () => {
   const [selectedDogId, setSelectedDogId] = useState(null);
-
+  const [popupTrigger, setPopupTrigger] = useState(false)
+  const [filteredBreeds, setFilteredBreeds] = useState([]);
+  const [popupForm , setPopupForm] = useState(false)
   const {isLoading , isSuccess ,breed} = useSelector((state) => state.breed)
+  const { user , Id} = useSelector((state) => state.auth)
   const dispatch = useDispatch();
+ 
+useEffect(() => {
 
   const fetchData= async () => {
     await dispatch(getBreeds())
+    await dispatch(getUser());
+  } 
+    fetchData()
+   
+}, [])
+ 
+
+ useEffect(() => {
+  if (isSuccess && breed && breed.length > 0) {
+    const filteredData = breed.filter((dog) => dog.userID === Id);
+    setFilteredBreeds(filteredData);
+  }
+}, [Id, breed, isSuccess]);
+console.log(Id)
+ 
+
+if (isLoading) {
+    return <p>Loading...</p>;
   }
 
-  
-  useEffect(() => {
-   fetchData()
-  },[])
-
-  console.log(breed)
-
+  if (!isSuccess || !breed || breed.length === 0) {
+    return <p>No breed data available</p>;
+  }
   const handleDelete = async (id) => {
-    console.log(id)
     try {
       await dispatch(deleteBreed(id))
       await dispatch(getBreeds());
@@ -40,16 +59,27 @@ const ListOfBreeds = () => {
     setSelectedDogId(id);
     setPopupForm(true);
   }
+  const handlePopupClose = async () => {
+    setPopupTrigger(false); // Close the popup
+    setPopupForm(false)  // close the editform
+    // Fetch updated breeds when the popup is closed
+    await dispatch(getBreeds());
+  };
+  const updateBreedData = (updatedBreedData) => {
+    // Use the updated data received from the Popup component
+    console.log('Received updated breed data:', updatedBreedData);
+    // Perform actions with the updated data if needed
+    // For example, update the state or dispatch an action
+  };
+  updateBreedData()
   
-
-  const [popupTrigger, setPopupTrigger] = useState(false)
-  const [popupForm , setPopupForm] = useState(false)
+  
   return (
     <div className="h-min-screen py-5 flex justify-center">
-         <Popup trigger = {popupTrigger}>
+         <Popup trigger = {popupTrigger} onClose={handlePopupClose}>
          
             </Popup>
-            <EditForm trigger={popupForm} dogId={selectedDogId} />
+            <EditForm trigger={popupForm} dogId={selectedDogId}  onClose={handlePopupClose}/>
 
       <div className={` ${popupTrigger || popupForm ? 'hidden' :  'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'} `}>
         <div className="flex justify-between mt-2 my-2">
@@ -76,9 +106,9 @@ const ListOfBreeds = () => {
             </thead>
 
             {/* Table body */}
-            {isSuccess && breed && breed.length > 0 ? (
+            {isSuccess && filteredBreeds && filteredBreeds.length > 0 ? (
                  <tbody className='border'>
-                 {breed?.map((dog, index) => (
+                 {filteredBreeds?.map((dog, index) => (
                    <tr key={index} className="text-center border">
                      <td className="px-4 py-9">{index + 1}</td>
                      <td className="px-4 py-9">{dog.name}</td>

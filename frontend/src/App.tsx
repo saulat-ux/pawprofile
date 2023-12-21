@@ -7,11 +7,19 @@ import Login from "./pages/auth/Login"
 import Register from "./pages/auth/Register"
 import Footer from "./components/footer/Footer"
 import axios from "axios"
+import { useEffect } from "react"
+import { useDispatch } from "react-redux"
+import { getLoginStatus } from "./redux/features/auth/authSlice"
 
 
 
 function App() {
   axios.defaults.withCredentials = true
+  const dispatch = useDispatch()
+
+  useEffect(() => {
+    dispatch(getLoginStatus())
+  },[dispatch])
  
   return (
     <>
@@ -21,8 +29,6 @@ function App() {
           <Route path="/" element= {<Home/>} />
           <Route path="/login" element= {<Login/>} />
           <Route path="/register" element= {<Register/>} />
-
-
           <Route path="/breeds" element= {<Breeds/>} />
           <Route path="/breedlist" element= {<ListOfBreeds/>} />
 

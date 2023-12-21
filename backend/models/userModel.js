@@ -26,13 +26,13 @@ const userSchema = mongoose.Schema(
         },
           role: {
             type: String,
-            required: [true],
-            default: "admin",
+            // required: [true],
+            default: "customer",
             enum: ["customer", "admin"],
         },
           photo: {
             type: String,
-            required: [true, "Please add a photo"],
+            // required: [true, "Please add a photo"],
             default: "https://i.ibb.co/4pDNDk1/avatar.png",
         },
           phone: {

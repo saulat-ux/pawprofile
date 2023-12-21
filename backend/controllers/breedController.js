@@ -7,6 +7,7 @@ const createBreed = asyncHandler(async(req, res) => {
     description,
     imageURL,
     color,
+    userID,
 
    } = req.body
 
@@ -21,6 +22,7 @@ const breed = await Breed.create({
     description, 
     imageURL,
     color,
+    userID,
 })
 
 res.status(201).json(breed)

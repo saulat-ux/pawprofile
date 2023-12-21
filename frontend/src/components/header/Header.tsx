@@ -1,5 +1,10 @@
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink,useNavigate  } from "react-router-dom";
 import logoImg from "../../assets/dogg.png";
+import { useDispatch } from 'react-redux';
+import { RESET_AUTH, logout } from '../../redux/features/auth/authSlice';
+import ShowOnLogin, { ShowOnLogout } from '../hiddenLink/HiddenLink';
+
+
 
 const logo = (
   <div className="text-3xl pt-5">
@@ -12,6 +17,17 @@ const logo = (
 );
 
 const Header = () => {
+  const dispatch = useDispatch()
+  const navigate = useNavigate();
+
+  const logoutUser = async() => {
+    await dispatch(logout())
+    await dispatch(RESET_AUTH())
+    navigate("/login")
+ 
+  
+   }
+
   return (
     <header>
       <div className="bg-yellow-400 font-abc">
@@ -28,15 +44,26 @@ const Header = () => {
             <li className="text-black hover:text-gray-800 transition duration-300 hover:underline focus:underline">
               <NavLink to={"breeds"}>Breeds</NavLink>
             </li>
+            <ShowOnLogin>
             <li className="text-black hover:text-gray-800 transition duration-300 hover:underline focus:underline">
               <NavLink to={"breedlist"}>My Breeds</NavLink>
             </li>
+            </ShowOnLogin>
+            <ShowOnLogout>
             <li className="text-black hover:text-gray-800 transition duration-300 hover:underline focus:underline">
               <NavLink to={"login"}>Login</NavLink>
             </li>
+            </ShowOnLogout>
+            <ShowOnLogout>
             <li className="text-black hover:text-gray-800 transition duration-300 hover:underline focus:underline">
               <NavLink to={"register"}>Register</NavLink>
             </li>
+            </ShowOnLogout>
+            <ShowOnLogin>
+            <li className="text-black hover:text-gray-800 transition duration-300 hover:underline focus:underline" onClick={logoutUser}>
+              <NavLink to={"logout"}>Logout</NavLink>
+            </li>
+            </ShowOnLogin>
           </ul>
         </nav>
       </div>
